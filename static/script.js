@@ -1,3 +1,13 @@
+const CATEGORY_COLORS = {
+  "Positive": "#4CAF50",
+  "Negative": "#F44336",
+  "Spam": "#9E9E9E",
+  "Question": "#2196F3",
+  "Feedback": "#FF9800",
+  "Promotional": "#9C27B0",
+  "All": "#fff"
+};
+
 async function submitVideoUrl() {
     const url = document.getElementById("videoUrlInput").value;
     // document.getElementById("videoStats").innerText = "Loading...";
@@ -10,7 +20,6 @@ async function submitVideoUrl() {
 
     const stats = await res.json();
     createStatsGraph(stats)
-    // document.getElementById("videoStats").innerText = JSON.stringify(stats, null, 2);
 
     // Refresh videos list
     fetchVideos();
@@ -21,11 +30,19 @@ async function fetchVideos() {
     const videos = await res.json();
     const list = document.getElementById("videoList");
     list.innerHTML = "";
+
     videos.forEach(v => {
-        const div = document.createElement("div"); 
-        div.className = "video-item";    
-        div.textContent = v.title;
+        const div = document.createElement("div");
+        div.className = "video-item";
         div.onclick = () => fetchCategoryStats(v.videoId);
+
+        div.innerHTML = `
+            <img src="${v.thumbnail}" alt="Thumbnail" class="thumbnail">
+            <div class="video-info">
+                <h4>${v.title}</h4>
+                <p>${v.total_comments} comments</p>
+            </div>
+        `;
         list.appendChild(div);
     });
 }
@@ -37,7 +54,14 @@ async function fetchCategoryStats(videoId) {
     createStatsGraph(stats)
 }
 
+function getRandomColor() {
+  return '#' + Math.floor(Math.random()*16777215).toString(16);
+}
+
 async function createStatsGraph(stats) {
+    const section = document.getElementById('second-section');
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth' });
     // Filter out "All"
     const filtered = stats.filter(s => s.category && s.category !== "All");
 
@@ -54,7 +78,7 @@ async function createStatsGraph(stats) {
         labels,
         datasets: [{
             data: counts,
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+            backgroundColor: labels.map(label => CATEGORY_COLORS[label] || getRandomColor())
         }]
         }
     });
@@ -84,6 +108,7 @@ async function checkSubCategorization() {
     if(exists) {
         fetchSubCategoryStats(videoId)
         fetchKeywordStats(videoId)
+        document.getElementById('third-section').style.display = 'block';
         document.getElementById("subcategorizeBtn").style.display = "none";
         document.getElementById("subcategory-stats-div").style.display = "block";
         document.getElementById("keyword-stats-div").style.display = "block";
@@ -114,6 +139,10 @@ async function runSubcategorization() {
     if (result.code === 200) {
         fetchSubCategoryStats(videoId);
         fetchKeywordStats(videoId);
+        document.getElementById('third-section').style.display = 'block';
+        const section = document.getElementById('third-section');
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("showAllCommentsBtn").style.display = "inline-block";
     }
 }
@@ -137,16 +166,31 @@ async function fetchSubCategoryStats(videoId) {
         });
     });
 
+    const layout = {
+        paper_bgcolor: "#212121",   
+        plot_bgcolor: "blue",
+        height: 750,
+        font: {
+            size: 24
+        }    
+    };
+
     const trace = {
         type: "treemap",
         labels,
         parents,
         values,
         textinfo: "label+value",
-        outsidetextfont: { size: 16, color: "#377eb8" }
+        outsidetextfont: { size: 16, color: "#377eb8" },
+        marker: {
+            colors: labels.map((label, i) => {
+                const parent = parents[i];
+                return CATEGORY_COLORS[label] || CATEGORY_COLORS[parent] || getRandomColor();
+            })
+        }
     };
     document.getElementById("subcategory-stats-div").style.display = "block";
-    Plotly.newPlot("treemap", [trace]);
+    Plotly.newPlot("treemap", [trace], layout);
 }
 
 async function fetchKeywordStats(videoId) {
@@ -166,7 +210,10 @@ async function fetchKeywordStats(videoId) {
     const layout = {
         title: 'Top Keywords',
         xaxis: { title: 'Keyword' },
-        yaxis: { title: 'Count' }
+        yaxis: { title: 'Count' },
+        paper_bgcolor: "#212121",   // background around the plot
+        plot_bgcolor: "#212121",     // background inside the plotting area
+        font: { color: "#ffffff" }
     };
     document.getElementById("keyword-stats-div").style.display = "block";
     Plotly.newPlot('keywordBarChart', [trace], layout);
@@ -176,6 +223,7 @@ async function showAllComments() {
     const videoId = localStorage.getItem("videoId");
     const resComments = await fetch(`/get-comments?videoId=${videoId}`);
     const dataComments = await resComments.json();
+    console.log(dataComments)
     displayComments(dataComments);
 
     const resCatSubcat = await fetch(`/get-categories-subcategories?videoId=${videoId}`);
@@ -201,25 +249,30 @@ async function showAllComments() {
         option.textContent = sub;
         subcategorySelect.appendChild(option);
     });
-    document.getElementById("comments-playground").style.display = "block";
+    const section = document.getElementById('comments-playground');
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth' });
 }
 
 async function sortComments() {
     const category = document.getElementById('categorySelect').value || '';
     const subcategory = document.getElementById('subcategorySelect').value || '';
-    console.log(category, subcategory)
+    
     const videoId = localStorage.getItem("videoId");
     const res = await fetch(`/get-comments?videoId=${videoId}&category=${encodeURIComponent(category)}&subcategory=${encodeURIComponent(subcategory)}`);
     const data = await res.json()
     displayComments(data)
 
     document.getElementById("summaryDrawer").style.display = "block";
+    document.getElementById("close-summary-btn").style.display = "inline-block";
+    document.getElementById("rulesDrawer").style.display = "none";
     document.getElementById("commentsList").style.width = "65%";
 
     const resSummary = await fetch(`/summarize-comments?videoId=${videoId}&category=${encodeURIComponent(category)}&subcategory=${encodeURIComponent(subcategory)}`);
     const dataSummary = await resSummary.json();
-    document.getElementById("categorySummary").innerHTML = `${dataSummary.category_summary || "None"}`
-    document.getElementById("subcategorySummary").innerHTML = `${dataSummary.subcategory_summary || "None"}`
+    document.getElementById("categorySummary").innerHTML = `${dataSummary.category_summary || "Select Category Sort"}`
+    document.getElementById("subcategorySummary").innerHTML = `${dataSummary.subcategory_summary || "Select SubCategory Sort"}`
+    document.getElementById("close-summary-btn").style.display = "inline-block";
 }
 
 async function displayComments(data) {
@@ -228,15 +281,26 @@ async function displayComments(data) {
 
     data.forEach(comment => {
         const div = document.createElement("div");
-        div.style.border = "1px solid #ccc";
-        div.style.marginBottom = "10px";
-        div.style.padding = "10px";
-
+        div.classList.add("comment-item");
+        if (!comment.display) div.classList.add("red-border");
         div.innerHTML = `
-            <p><strong>Text:</strong> ${comment.textOriginal}</p>
-            <p><strong>Category:</strong> ${comment.category || 'N/A'}</p>
+            <p><strong>Comment:</strong> ${comment.textOriginal}</p>
             <p><strong>Subcategory:</strong> ${comment.subCategory || 'N/A'}</p>
-        `;
+            <br><br>
+            <div class="meta">
+                <span>Likes: ${comment.likeCount}</span>
+                <span>Replies: ${comment.totalReplyCount}</span>
+                <span>Sentiment: ${comment.sentiment}</span>
+                <span>Toxicity: ${comment.toxicity}</span>
+                <span>Updated: ${comment.updatedAt}</span>
+            </div>
+            ${!comment.display ? `
+                <div class="warning">
+                <strong>Current applied rules will not display this comment:</strong>
+                <ul>${comment.displayReasons.map(r => `<li>${r}</li>`).join('')}</ul>
+                </div>` : ""}
+            `;
+        
         container.appendChild(div);
     });
 }
@@ -341,6 +405,8 @@ async function applyRules() {
 
 async function showRules() {
     document.getElementById("rulesDrawer").style.display = "block";
+    document.getElementById("summaryDrawer").style.display = "none";
+    document.getElementById("close-summary-btn").style.display = "none";
     document.getElementById("commentsList").style.width = "65%";
     document.getElementById("show-rules-btn").style.display = "none";
     document.getElementById("close-rules-btn").style.display = "inline-block";
@@ -378,6 +444,13 @@ function closeRules() {
     document.getElementById("rulesDrawer").style.display = "none";
     document.getElementById("commentsList").style.width = "100%";
     document.getElementById("close-rules-btn").style.display = "none";
+    document.getElementById("show-rules-btn").style.display = "inline-block";
+}
+
+function closeSummary() {
+    document.getElementById("summaryDrawer").style.display = "none";
+    document.getElementById("commentsList").style.width = "100%";
+    document.getElementById("close-summary-btn").style.display = "none";
     document.getElementById("show-rules-btn").style.display = "inline-block";
 }
 

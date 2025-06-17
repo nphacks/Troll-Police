@@ -1,50 +1,391 @@
-body { font-family: Arial, sans-serif; padding: 20px; }
+body { font-family: Arial, sans-serif; padding: 0 20px 0 20px; background-color: #181818; color: white; }
 input, button { padding: 8px; margin: 5px 0; }
-.video-box { cursor: pointer; padding: 10px; border: 1px solid #ccc; margin: 5px; }
-.video-box:hover { background-color: #f0f0f0; }
-.video-item {
-    padding: 10px;
-    border: 1px solid #ccc;
-    margin-bottom: 5px;
-    cursor: pointer;
+h2, h3 { margin-top: 24px; color:#cc0000; text-align: center; }
+button {
+  display: flex;
+  align-items: center;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 17px;
+  padding: 12px 20px;
+  color: white;
+  background: rgb(156, 92, 94);
+  border: none;
+  box-shadow: 0 0.7em 1.5em -0.5em rgba(78, 48, 51, 0.527);
+  letter-spacing: 0.05em;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
 }
+
+button:hover {
+  box-shadow: 0 0.5em 1.5em -0.5em rgba(116, 71, 79, 0.627);
+}
+
+button:active {
+  box-shadow: 0 0.3em 1em -0.5em rgba(116, 71, 79, 0.627);
+}
+
+button::before {
+  content: "";
+  width: 4px;
+  height: 40%;
+  background-color: white;
+  position: absolute;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  left: 0;
+  transition: all 0.2s;
+}
+
+button::after {
+  content: "";
+  width: 4px;
+  height: 40%;
+  background-color: white;
+  position: absolute;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  right: 0;
+  transition: all 0.2s;
+}
+
+button:hover::before,
+button:hover::after {
+  height: 60%;
+}
+
+select {
+  padding: 10px 14px;
+  margin: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  font-size: 16px;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  appearance: none;
+  cursor: pointer;
+  transition: border 0.3s ease;
+}
+
+select:focus {
+  border-color: #cc0000; /* YouTube red */
+  outline: none;
+}
+
+/* For Chrome, Edge, and Safari */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #212121;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #3d3d3d;
+  border-radius: 10px;
+  border: 2px solid #212121;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3d3d3d #212121;
+}
+
+
+.first-section {
+    height: 100vh;
+    width: 100vw
+}
+
+.youtube-url-wrapper {
+    height: 40vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.youtube-url-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+/* From Uiverse.io by AmIt-DasIT */ 
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  position: relative;
+  color: white;
+}
+
+.container .label {
+  font-size: 15px;
+  padding-left: 10px;
+  position: absolute;
+  top: 13px;
+  transition: 0.3s;
+  pointer-events: none;
+}
+
+#videoUrlInput, #wordInput, #phraseInput {
+  width: 500px;
+  height: 45px;
+  border: none;
+  outline: none;
+  padding: 0px 7px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 15px;
+  margin-right: 20px;
+  background-color: transparent;
+  box-shadow: 3px 3px 10px rgba(0,0,0,1),
+  -1px -1px 6px rgba(255, 255, 255, 0.4);
+}
+
+#videoUrlInput:focus, #wordInput:focus, #phraseInput:focus {
+  border: 2px solid transparent;
+  color: #fff;
+  box-shadow: 3px 3px 10px rgba(0,0,0,1),
+  -1px -1px 6px rgba(255, 255, 255, 0.4),
+  inset 3px 3px 10px rgba(0,0,0,1),
+  inset -1px -1px 6px rgba(255, 255, 255, 0.4);
+}
+
+.container #videoUrlInput:valid ~ .label,
+.container #videoUrlInput:focus ~ .label,
+.container #wordInput:valid ~ .label,
+.container #wordInput:focus ~ .label,
+.container #phraseInput:valid ~ .label,
+.container #phraseInput:focus ~ .label {
+  transition: 0.3s;
+  padding-left: 2px;
+  transform: translateY(-35px);
+}
+
+.container #videoUrlInput:valid,
+.container #videoUrlInput:focus,
+.container #wordInput:valid,
+.container #wordInput:focus,
+.container #phraseInput:valid,
+.container #phraseInput:focus {
+  box-shadow: 3px 3px 10px rgba(0,0,0,1),
+  -1px -1px 6px rgba(255, 255, 255, 0.4),
+  inset 3px 3px 10px rgba(0,0,0,1),
+  inset -1px -1px 6px rgba(255, 255, 255, 0.4);
+}
+
+.youtube-videos-wrapper {
+    height: 55vh;
+    padding-top: 12px;
+    overflow-y: auto;
+    border-radius: 12px;
+    background-color: #3d3d3d;
+}
+
+.video-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.video-item {
+    width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
 .video-item:hover {
+    color: #3d3d3d;
     background-color: #f0f0f0;
+}
+
+.thumbnail {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.video-info {
+    padding: 10px;
+}
+
+.category-charts {
+    height: 50vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.sentiment-container, .toxicity-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 24px;
+  border-radius: 12px;
+  background-color: #212121;
+}
+
+#sentimentValue, #toxicityValue {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #cc0000; 
+  margin-bottom: 10px;
+}
+
+#sentimentRange, #toxicityRange {
+  width: 300px;
+  accent-color: #cc0000; 
+  margin-bottom: 5px;
+  pointer-events: none; 
+  opacity: 1; 
+}
+
+label[for="sentimentRange"], label[for="toxicityRange"] {
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+#pieChart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sub-catergorization-btn-container, .show-all-comments-btn-container {
+    margin: 24px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #comments-playground {
     position: relative;
 }
 
+.comment-sorting-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 #commentsList {
     transition: width 0.3s ease;
     float: left;
+    background-color: #212121;
+}
+
+/* .comment-item {
+    border: 1px solid #ccc;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 12px;
+    background-color: #3d3d3d;
+} */
+
+.comment-item {
+  /* border: 1px solid #ddd; */
+  border-radius: 10px;
+  padding: 16px;
+  margin: 24px;
+  background-color: #3d3d3d;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-family: sans-serif;
+  transition: border 0.3s ease;
+}
+
+.comment-item.red-border {
+  border-left: 10px solid #960000;
+  background-color: #2a0202;
+}
+
+.comment-item p {
+  margin: 6px 0;
+  line-height: 1.4;
+}
+
+.comment-item strong {
+  color: #d4d4d4;
+}
+
+.comment-item .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 8px;
+}
+
+.comment-item .meta span {
+  background-color: #eee;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.comment-item .warning {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #6727277e;
+  /* border-left: 5px solid red; */
+  border-radius: 6px;
+  color: #ffc6c8;
+  font-size: 0.95rem;
+}
+.comment-item .warning ul {
+  margin: 6px 0 0 20px;
+  padding: 0;
 }
 
 #rulesDrawer {
     position: absolute;  
-    top: 5vh; 
+    top: 7vh; 
     right: 0;
-    width: 30vw;
-    height: 85vh;
+    width: 35%;
+    height: 100%;
     /* border-left: 1px solid #ccc; */
-    background: #f9f9f9;
+    background-color: #282828;
     padding: 10px;
     box-sizing: border-box;
     overflow-y: auto;
     display: none;
 }
 
+.rules-section {
+    padding: 12px;
+    margin: 18px 0;
+    background-color: #3d3d3d;
+    border-radius: 12px;
+}
+
 .chip {
     display: inline-block;
     padding: 5px 10px;
     margin: 4px;
+    color: #282828;
     background-color: #e0e0e0;
     border-radius: 16px;
     cursor: pointer;
 }
 
 .chip.selected {
-    background-color: #2196f3;
-    color: white;
+    background-color: #ffc6c8;
+    color: black;
+}
+
+#categorySummary, #subcategorySummary {
+    padding: 12px;
+    margin: 18px 0;
+    background-color: #3d3d3d;
+    border-radius: 12px;
 }
