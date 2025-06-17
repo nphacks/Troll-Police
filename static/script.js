@@ -375,7 +375,7 @@ function updateList(divId, items) {
 }
 
 async function createRules() {
-    // console.log('SELECTED PHRASES', selectedPhrases)
+    console.log('SELECTED PHRASES', selectedPhrases)
     document.getElementById("rules-loader").style.display = "block";
     const videoId = localStorage.getItem("videoId");
     const formData = new FormData();
@@ -385,9 +385,9 @@ async function createRules() {
     formData.append("keywords", JSON.stringify(selectedWords));
     formData.append("phrases", JSON.stringify(selectedPhrases));
 
-    // for (const [key, value] of formData.entries()) {
-    //     console.log(key, value);
-    // }
+    for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
 
     const res = await fetch("/create-rules", {
         method: "POST",
