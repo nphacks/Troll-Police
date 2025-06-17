@@ -11,3 +11,4 @@ google-generativeai
 pymongo 
 numpy 
 scipy
+sklearn
