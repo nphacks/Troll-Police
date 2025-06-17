@@ -8,6 +8,13 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Flask app helper function that uses Gemini AI to generate a concise subcategory label for a comment.
+# Provides the model with category context and examples to produce a 5-6 word descriptive subcategory.
+# Ensures subcategories are general and avoid specific names.
+# Returns the generated subcategory string.
+
+
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-pro")
 

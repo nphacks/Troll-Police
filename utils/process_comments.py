@@ -5,16 +5,20 @@ from datetime import datetime
 from mongodb.db_utils import videos_col, comments_col
 from sklearn.cluster import AgglomerativeClustering
 
+# Compute cosine similarity between two vectors
 def cosine_similarity(v1, v2):
     return 1 - cosine(v1, v2)
 
+# Normalize a vector
 def normalize(v):
     v = np.array(v)
     return (v / np.linalg.norm(v)).tolist()
 
+# Update running average of embeddings
 def update_avg_embedding(old_avg, new_emb, n):
     return ((np.array(old_avg) * n + np.array(new_emb)) / (n + 1)).tolist()
 
+# Cluster similar subcategories using hierarchical clustering
 def cluster_subcategories(subcat_meta, threshold=0.3):
     if len(subcat_meta) < 2:
         return subcat_meta
@@ -24,6 +28,7 @@ def cluster_subcategories(subcat_meta, threshold=0.3):
         n_clusters=None, distance_threshold=threshold, metric='cosine', linkage='average'
     ).fit(embeddings).labels_
 
+    # Aggregate subcategories within same cluster
     clustered = {}
     for idx, label in enumerate(labels):
         key = f"group_{label}"
@@ -38,6 +43,7 @@ def cluster_subcategories(subcat_meta, threshold=0.3):
             clustered[key]["count"] += sc["count"]
             clustered[key]["avgEmbedding"] += np.array(sc["avgEmbedding"]) * sc["count"]
 
+    # Compute average embedding for each cluster
     result = []
     for item in clustered.values():
         result.append({
@@ -48,6 +54,7 @@ def cluster_subcategories(subcat_meta, threshold=0.3):
         })
     return result
 
+# Main function to assign subcategories to comments based on embeddings and clustering
 def subcategorize_comments(video_id):
     video = videos_col.find_one({"videoId": video_id})
     if not video: return False
@@ -55,13 +62,11 @@ def subcategorize_comments(video_id):
     comments = list(comments_col.find({"videoId": video_id}))
     subcat_meta = video.get("subCategoryMetadata", [])
 
-    print('Total comments', len(comments))
-
     for c in comments:
         main_cat = c.get("category")
         emb = normalize(c["embedding"])
         matched = False
-
+         # Try to match comment to existing subcategory by similarity
         for sc in subcat_meta:
             sc_emb = normalize(sc["avgEmbedding"])
             if cosine_similarity(emb, sc_emb) >= sc.get("threshold", 0.7):
@@ -71,6 +76,7 @@ def subcategorize_comments(video_id):
                 matched = True
                 break
 
+        # If no match found, generate a new subcategory using LLM
         if not matched:
             new_label = generate_subcategory(c["textOriginal"], main_cat)
             subcat_meta.append({

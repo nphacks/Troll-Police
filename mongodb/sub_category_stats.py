@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv() 
 
+# Aggregates comment counts grouped by category and their subcategories for a given video.
+# Returns a list of categories each with an array of subcategories and their respective counts, sorted by count descending.
 def get_subcategory_counts(video_id):
     pipeline = [
         {"$match": {"videoId": video_id}},
@@ -32,6 +34,8 @@ def get_subcategory_counts(video_id):
     result = list(db.comments.aggregate(pipeline))
     return result
 
+# Checks if the video document contains subCategoryMetadata field indicating if subcategorization exists.
+# Returns True if present, False otherwise (or if video not found).
 def check_subcategorization(video_id):
     video = videos_col.find_one({"videoId": video_id})
     return "subCategoryMetadata" in video if video else False

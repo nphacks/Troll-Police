@@ -10,7 +10,7 @@ const CATEGORY_COLORS = {
 
 async function submitVideoUrl() {
     const url = document.getElementById("videoUrlInput").value;
-    // document.getElementById("videoStats").innerText = "Loading...";
+    document.getElementById("yt-url-loader").style.display = "block";
 
     const res = await fetch("/submit-url", {
         method: "POST",
@@ -59,6 +59,7 @@ function getRandomColor() {
 }
 
 async function createStatsGraph(stats) {
+    document.getElementById("yt-url-loader").style.display = "none";
     const section = document.getElementById('second-section');
     section.style.display = 'block';
     section.scrollIntoView({ behavior: 'smooth' });
@@ -122,6 +123,7 @@ async function checkSubCategorization() {
 }
 
 async function runSubcategorization() {
+    document.getElementById("subcategorization-loader").style.display = "block";
     const videoId = localStorage.getItem("videoId");
     if (!videoId) {
         alert("No video selected");
@@ -137,6 +139,7 @@ async function runSubcategorization() {
     // alert(result.message);
 
     if (result.code === 200) {
+        document.getElementById("subcategorization-loader").style.display = "none";
         fetchSubCategoryStats(videoId);
         fetchKeywordStats(videoId);
         document.getElementById('third-section').style.display = 'block';
@@ -223,7 +226,6 @@ async function showAllComments() {
     const videoId = localStorage.getItem("videoId");
     const resComments = await fetch(`/get-comments?videoId=${videoId}`);
     const dataComments = await resComments.json();
-    console.log(dataComments)
     displayComments(dataComments);
 
     const resCatSubcat = await fetch(`/get-categories-subcategories?videoId=${videoId}`);
@@ -282,7 +284,7 @@ async function displayComments(data) {
     data.forEach(comment => {
         const div = document.createElement("div");
         div.classList.add("comment-item");
-        if (!comment.display) div.classList.add("red-border");
+        if (comment.display===false) div.classList.add("red-border");
         div.innerHTML = `
             <p><strong>Comment:</strong> ${comment.textOriginal}</p>
             <p><strong>Subcategory:</strong> ${comment.subCategory || 'N/A'}</p>
@@ -297,7 +299,7 @@ async function displayComments(data) {
             ${!comment.display ? `
                 <div class="warning">
                 <strong>Current applied rules will not display this comment:</strong>
-                <ul>${comment.displayReasons.map(r => `<li>${r}</li>`).join('')}</ul>
+                <ul>${(comment.displayReasons || []).map(r => `<li>${r}</li>`).join('')}</ul>
                 </div>` : ""}
             `;
         
@@ -350,8 +352,8 @@ document.getElementById("wordInput").addEventListener("keydown", e => {
     if (e.key === "Enter") {
         const word = e.target.value.trim();
         if (word && !selectedWords.includes(word)) {
-        selectedWords.push(word);
-        updateList("wordList", selectedWords);
+            selectedWords.push(word);
+            updateList("wordList", selectedWords);
         }
         e.target.value = "";
     }
@@ -361,8 +363,8 @@ document.getElementById("phraseInput").addEventListener("keydown", e => {
     if (e.key === "Enter") {
         const phrase = e.target.value.trim();
         if (phrase && !selectedPhrases.includes(phrase)) {
-        selectedPhrases.push(phrase);
-        updateList("phraseList", selectedPhrases);
+            selectedPhrases.push(phrase);
+            updateList("phraseList", selectedPhrases);
         }
         e.target.value = "";
     }
@@ -373,13 +375,19 @@ function updateList(divId, items) {
 }
 
 async function createRules() {
+    // console.log('SELECTED PHRASES', selectedPhrases)
+    document.getElementById("rules-loader").style.display = "block";
     const videoId = localStorage.getItem("videoId");
     const formData = new FormData();
     formData.append("videoId", videoId);
     formData.append("categories", JSON.stringify(selectedCategories));
     formData.append("subcategories", JSON.stringify(selectedSubcategories));
-    formData.append("keywords", JSON.stringify(keywords));
-    formData.append("phrases", JSON.stringify(phrases));
+    formData.append("keywords", JSON.stringify(selectedWords));
+    formData.append("phrases", JSON.stringify(selectedPhrases));
+
+    // for (const [key, value] of formData.entries()) {
+    //     console.log(key, value);
+    // }
 
     const res = await fetch("/create-rules", {
         method: "POST",
@@ -387,16 +395,19 @@ async function createRules() {
     });
     const data = await res.json();
     if (data.code === 200) {
+        document.getElementById("rules-loader").style.display = "none";
         document.querySelector('button[onclick="applyRules()"]').style.display = "inline-block";
     }
 }
 
 async function applyRules() {
+    document.getElementById("rules-loader").style.display = "block";
     const videoId = localStorage.getItem("videoId");
     const res = await fetch(`/apply-rules?videoId=${videoId}`);
     const exists = await res.json();
 
     if(exists.code === 200) {
+        document.getElementById("rules-loader").style.display = "none";
         const resComments = await fetch(`/get-comments?videoId=${videoId}`);
         const dataComments = await resComments.json();
         displayComments(dataComments);
@@ -415,12 +426,12 @@ async function showRules() {
     const videoId = localStorage.getItem("videoId");
     const checkRes = await fetch(`/check-rules?videoId=${videoId}`);
     const exists = await checkRes.json();
+    // console.log('If exists -> ', exists)
 
     if (exists) {
         const res = await fetch(`/get-video-rules?videoId=${videoId}`);
         const rules = await res.json();
-        console.log(rules)
-
+        // console.log('Video rules -> ', rules)
         rules.blockCategories.forEach(cat => {
             selectedCategories.push(cat);
             const chip = [...document.querySelectorAll('#categoryChips .chip')].find(c => c.textContent === cat);

@@ -2,6 +2,11 @@ from vertex_ai.categorize_comment import client
 from mongodb.db_utils import comments_col
 from datetime import datetime
 
+# Functions to summarize comments by category or subcategory for a given video.
+# Fetches relevant comments from MongoDB, compiles their texts, and prompts Gemini AI to generate a concise summary paragraph.
+# Returns a well-written summary capturing main opinions without emojis.
+# Handles cases where no comments are found by returning an informative message.
+
 def summarize_category_comments(video_id, category):
     comments = list(comments_col.find(
         {"videoId": video_id, "category": category},
@@ -27,8 +32,6 @@ def summarize_subcategory_comments(video_id, subcategory):
         {"videoId": video_id, "subCategory": subcategory},
         {"textOriginal": 1}
     ))
-    print(comments_col.distinct("subCategory", {"videoId": video_id}))
-    print(comments)
     texts = [c["textOriginal"] for c in comments]
 
     if not texts:

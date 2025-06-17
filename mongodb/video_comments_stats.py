@@ -4,6 +4,13 @@ from dotenv import load_dotenv
 
 load_dotenv() 
 
+# Aggregates comment statistics by category for a given video:
+# - Counts comments per category
+# - Calculates average sentiment and toxicity scores per category
+# Returns a list of dicts with category stats plus an overall aggregate labeled "All"
+# Also appends the videoId to the returned list for reference.
+
+
 def get_video_comment_stats(video_id):
     pipeline = [
         {"$match": {"videoId": video_id}},

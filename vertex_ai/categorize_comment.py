@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# This script uses Gemini AI to analyze YouTube comments.
+# It classifies comments into predefined categories, extracts keywords, and computes sentiment and toxicity scores.
+# The classification is structured using a Pydantic model for validation.
+
 client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 LABELS = ["Positive", "Negative", "Spam", "Question", "Feedback", "Promotional"]
@@ -26,9 +30,7 @@ class CommentAnalysis(BaseModel):
 
 # model = genai.GenerativeModel("gemini-2.0-flash")
 
-def classify_comment(text):
-    print('classify comment')
-    
+def classify_comment(text):    
     prompt = (
         f"Analyze the following YouTube comment.\n"
         f"Label the comment into one of the following categories:\n"
@@ -58,5 +60,4 @@ def classify_comment(text):
     )
 
 
-    print('END --> classify comment')
     return response.parsed

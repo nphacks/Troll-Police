@@ -8,15 +8,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def classify_text(text):
-    # Vertex AI logic here
-    return f"Classified: {text}"
+# This script fetches YouTube comments using the YouTube Data API.
+# It extracts the video ID from the URL, retrieves comments page by page, saves them to MongoDB,
+# stores metadata from the first response, and returns aggregated comment stats.
 
 def extract_video_id(url):
     match = re.search(r"(?:v=|youtu\.be/)([a-zA-Z0-9_-]{11})", url)
     return match.group(1) if match else None
 
-def get_youtube_comments(video_url, max_comments=5):
+def get_youtube_comments(video_url, max_comments=100):
     video_id = extract_video_id(video_url)
     if not video_id:
         return []
@@ -27,8 +27,6 @@ def get_youtube_comments(video_url, max_comments=5):
     next_page_token = None
     first_page = True
 
-    print('get youtube comments')
-
     while len(comments) < max_comments:
         response = youtube.commentThreads().list(
             part="snippet",
@@ -38,8 +36,8 @@ def get_youtube_comments(video_url, max_comments=5):
             textFormat="plainText"
         ).execute()
 
-        with open("youtube_comments_response.json", "w", encoding="utf-8") as f:
-            json.dump(response, f, ensure_ascii=False, indent=2)
+        # with open("youtube_comments_response.json", "w", encoding="utf-8") as f:
+        #     json.dump(response, f, ensure_ascii=False, indent=2)
 
         new_comments = save_comments(response)  # returns number of comments saved
         comments.extend(new_comments)

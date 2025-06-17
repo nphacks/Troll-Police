@@ -21,12 +21,11 @@ def test_mongo_connection():
     try:
         client = MongoClient(os.getenv("MONGO_URI"), serverSelectionTimeoutMS=2000)
         client.server_info()  # Forces a call to test connection
-        print("MongoDB connection successful.")
+        print("DB connected.")
     except Exception as e:
-        print(f"MongoDB connection failed: {e}")
+        print(f"DB connection failed: {e}")
 
 def save_video_metadata(response):
-    print('save video metadata')
     item = response["items"][0]["snippet"]
     video_doc = {
         "videoId": item["videoId"],
@@ -37,13 +36,11 @@ def save_video_metadata(response):
     }
     if not videos_col.find_one({"videoId": item["videoId"]}):
         videos_col.insert_one(video_doc)
-    print('END --> save video metadata')
 
 
 def save_comments(response):
     comments = []
     texts = []
-    print('save comments')
 
     for item in response["items"]:
         snippet = item["snippet"]["topLevelComment"]["snippet"]
@@ -78,6 +75,5 @@ def save_comments(response):
     if comments:
         comments_col.insert_many(comments)
 
-    print('END --> save comments')
     return comments
 

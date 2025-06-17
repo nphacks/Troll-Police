@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 
 load_dotenv() 
 
+# Fetches video metadata (title, thumbnail, total comments) from YouTube API for all videos stored in MongoDB.
+# Uses stored video IDs to query YouTube and compiles a list of video details.
+# Returns a list of dictionaries containing videoId, title, thumbnail URL, and total comment count.
+
 def fetch_video_details():
     db = client[os.getenv("MONGO_DB")]
     video_ids = db.videos.distinct("videoId")

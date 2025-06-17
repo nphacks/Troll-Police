@@ -10,6 +10,7 @@ load_dotenv()
 db = client[os.getenv("MONGO_DB")]
 rules_col = db.rules
 
+# Functions to get, check existence, and upsert (insert or update) rules by video ID.
 
 def get_rules(video_id):
     rule = rules_col.find_one({"videoId": video_id})
@@ -23,7 +24,11 @@ def check_rules(video_id):
         return False
     return True
 
+# Manages content moderation rules in MongoDB for each video.
+# Supports fields like notAllowedWords, blockCategories, blockSubCategories, and contentRules.
+# Uses timestamps for createdAt and updatedAt to track rule changes.
 def upsert_rules(video_id, not_allowed_words=None, block_categories=None, block_subcategories=None, content_rules=None):
+    # print(not_allowed_words, block_categories, block_subcategories, content_rules)
     now = datetime.utcnow()
     update_fields = {"updatedAt": now}
 

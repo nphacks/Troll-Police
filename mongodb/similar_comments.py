@@ -7,7 +7,6 @@ load_dotenv()
 def find_similar_comments(comment_id, top_k=5):
     db = client[os.getenv("MONGO_DB")]
     comment = db.comments.find_one({"commentId": comment_id})
-    print(db.comments.index_information())
     if not comment or "embedding" not in comment:
         return []
 

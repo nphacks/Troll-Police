@@ -4,6 +4,13 @@ from dotenv import load_dotenv
 
 load_dotenv() 
 
+# Retrieves comments for a specific video filtered optionally by category and/or subcategory.
+# Returns detailed comment fields including text, categories, display status, likes, replies, sentiment, and toxicity.
+
+# Retrieves only comments marked as displayable (display=True) for a video, 
+# optionally filtered by category and/or subcategory.
+# Returns limited fields: original text, category, and subcategory.
+
 def get_comments_by_category(video_id, category=None, subcategory=None):
     query = {"videoId": video_id}
     

@@ -9,7 +9,7 @@ from mongodb.keyword_stats import get_top_keywords
 from mongodb.comment_rules import upsert_rules, get_rules, check_rules
 from mongodb.apply_rules import apply_rules
 from mongodb.categories_subcategories import get_categories_and_subcategories
-from vertex_ai.ai_utils import classify_text, get_youtube_comments  
+from vertex_ai.ai_utils import get_youtube_comments  
 from vertex_ai.summarize_comments import summarize_category_comments, summarize_subcategory_comments  
 from utils.process_comments import subcategorize_comments
 from dotenv import load_dotenv
@@ -29,16 +29,6 @@ def index():
     stats = None
 
     return render_template("index.html", stats=stats)
-    # print('Total videos --->', len(videos))
-        
-    # if request.method == "POST":
-    #     videoUrl = request.form.get("videoUrl", "")        
-    #     stats = get_youtube_comments(videoUrl)  
-    #     # videos = fetch_video_details()
-    #     print(stats)
-    #     return render_template("index.html", videos=videos, stats=stats)
-    # else:
-    #     return render_template("index.html", videos=videos, stats=None)
 
 @app.route("/submit-url", methods=["POST"])
 def submit_url():
@@ -66,11 +56,6 @@ def category_stats():
     video_id = request.args.get("videoId")
     stats = get_video_comment_stats(video_id)
     return jsonify(stats)
-    # if request.method == "GET":
-    #     videoId='Ca4nR6IRJ88'
-    #     stats = get_video_comment_stats(videoId)
-    #     print(stats)
-    #     return f"Stats: {stats}" 
     
 @app.route("/subcategorize", methods=["POST"])
 def subcategorize():
@@ -122,7 +107,6 @@ def get_similar_comments():
     if request.method == "GET":
         commentId='UgwGJOTYouk2q99Y2IB4AaABAg'
         comments = find_similar_comments(commentId, 10)
-        print(comments)
         return f"Comments: {comments}" 
     
 @app.route("/create-rules", methods=["POST"])
@@ -135,6 +119,7 @@ def create_video_rules():
     subcategories = json.loads(request.form.get("subcategories", "[]"))
     keywords = json.loads(request.form.get("keywords", "[]"))
     phrases = json.loads(request.form.get("phrases", "[]"))
+    # print('Route -> ', categories, subcategories, keywords, phrases)
 
     success = upsert_rules(video_id, categories, subcategories, keywords, phrases)
     if success:
@@ -145,6 +130,7 @@ def create_video_rules():
 def get_video_rules():
     videoId = request.args.get("videoId")
     rules = get_rules(videoId)
+    print(rules)
     return dumps(rules), 200, {'Content-Type': 'application/json'}
 
 @app.route("/check-rules", methods=["GET"])

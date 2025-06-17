@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
   </head>
   <body>
     <div id="first-section">
@@ -15,11 +16,18 @@
             <input required="" type="text" class="input" id="videoUrlInput">
             <label class="label">Enter a Youtube Url</label>
           </div>
+          <!-- From Uiverse.io by aryamitra06 --> 
+          <div id="yt-url-loader" class="loader" style="display: none;">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+          </div>
           <button onclick="submitVideoUrl()">Submit</button>
         </div>
       </div>
       
       <div class="youtube-videos-wrapper">
+        <h2>Select a Video to Analyse Comments</h2>
         <div id="videoList" class="video-list"></div>
       </div>
     </div>
@@ -41,7 +49,14 @@
       </div>
       <div class="sub-catergorization-btn-container">
           <button id="subcategorizeBtn" onclick="runSubcategorization()" style="display: none;">Subcategorize Comments</button>
-        </div>
+          <br>
+          <!-- From Uiverse.io by aryamitra06 --> 
+          <div id="subcategorization-loader" class="loader" style="display: none;">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+          </div>
+      </div>
     </div>
     
     <div id="third-section" style="display: none;">
@@ -129,6 +144,11 @@
         <div>
           <button onclick="createRules()">Add Rules</button>
           <button onclick="applyRules()" style="display: none;">Apply Rules</button>
+          <div id="rules-loader" class="loader" style="display: none;">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+          </div>
         </div>
       </div>
     </div>
