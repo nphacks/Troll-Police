@@ -1,14 +1,104 @@
 <!doctype html>
 <html>
-  <head><title>Hello App</title></head>
+  <head>
+    <title>TrollPolice</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
   <body>
-    <h2>Enter your name:</h2>
-    <form method="POST">
-      <input type="text" name="name" required>
-      <button type="submit">Submit</button>
-    </form>
-    {% if greeting %}
-      <h3>{{ greeting }}</h3>
-    {% endif %}
+    <h2>Enter your Youtube URL:</h2>
+    <input type="text" id="videoUrlInput" placeholder="https://youtube.com/watch?v=...">
+    <button onclick="submitVideoUrl()">Submit</button>
+
+    <h3>Available Videos:</h3>
+    <div id="videoList">
+      {% for video in videos %}
+        <div class="video-item">{{ video.title }}</div>
+      {% endfor %}
+    </div>
+
+    <h3>Video Stats:</h3>
+    <!-- <pre id="videoStats">Loading...</pre> -->
+     <div id="pieChart" style="width:300px; height:300px;"><canvas id="pieChart"></canvas></div>
+
+    <div>
+      <label>Avg Sentiment:</label>
+      <input type="range" id="sentimentRange" min="-1" max="1" step="0.01" disabled>
+      <span id="sentimentValue"></span>
+    </div>
+
+    <div>
+      <label>Avg Toxicity:</label>
+      <input type="range" id="toxicityRange" min="0" max="1" step="0.01" disabled>
+      <span id="toxicityValue"></span>
+    </div>
+
+    <button id="subcategorizeBtn" onclick="runSubcategorization()" style="display: none;">Subcategorize Comments</button>
+
+    <!-- Containers to show stats -->
+    <div id="subcategory-stats-div">
+      <h3>Subcategory Stats:</h3>
+      <div id="treemap"></div>
+    </div>
+    
+    <div id="keyword-stats-div">
+      <h3>Keyword Stats:</h3>
+      <div id="keywordBarChart"></div>
+    </div>
+
+    <button id="showAllCommentsBtn" onclick="showAllComments()" style="display: none;">Show All Comments</button>
+
+    <div id="comments-playground" style="display: none; width:90vw; height:90vh; border:1px solid #ccc; padding:10px;">
+      <div style="height:5vh; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <select id="categorySelect">
+            <option value="">Select Category</option>
+          </select>
+
+          <select id="subcategorySelect">
+            <option value="">Select Subcategory</option>
+          </select>
+
+          <button onclick="sortComments()">Sort</button>
+        </div>
+        <div>
+          <button id="show-rules-btn" onclick="showRules()">Show Rules</button>
+          <button id="close-rules-btn" onclick="closeRules()" style="display: none;">Close Rules</button>
+        </div>
+      </div>
+
+      <div id="commentsList" style="height:85vh; overflow-y:auto; margin-top:10px; width: 100%;">
+      </div>
+
+      <div id="summaryDrawer" style="display: none; position: absolute; right: 0; top: 0; width: 35%; height: 100%; background: #f9f9f9; border-left: 1px solid #ccc; padding: 10px;">
+        <h3>Summary based on Category</h3>
+        <p id="categorySummary"></p>
+        <h3>Summary based on Sub-Category</h3>
+        <p id="subcategorySummary"></p>
+      </div>
+
+      <div id="rulesDrawer">
+        <h3>Rules</h3>
+
+        <h4>1. Select Categories</h4>
+        <div id="categoryChips"></div>
+
+        <h4>2. Select Subcategories</h4>
+        <div id="subcategoryChips" style="height: 250px; overflow-y: auto;"></div>
+
+        <h4>3. Enter Words</h4>
+        <input type="text" id="wordInput" placeholder="Type a word and press Enter">
+        <div id="wordList"></div>
+
+        <h4>4. Enter Phrases</h4>
+        <input type="text" id="phraseInput" placeholder="Type a phrase and press Enter">
+        <div id="phraseList"></div>
+
+        <button onclick="createRules()">Add Rules</button>
+        <button onclick="applyRules()" style="display: none;">Apply Rules</button>
+      </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>
