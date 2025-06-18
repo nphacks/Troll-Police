@@ -39,6 +39,8 @@ def generate_subcategory(text, category):
     #     F"Some examples: Sexist comment on the youtuber, Disappointment with Trump Administration, Appreciating the teachers' work, Happy to see the news"
     #     f"The category is: {category} and the comment is:\n\"{text}\""
     # )
+    print("API KEY:", os.getenv("GOOGLE_API_KEY"))
+
     prompt = (
         f"Generate a concise sub-category for the given comment.\n"
         f"Use 5 to 6 words following the format: <Tone/Emotion> <Focus/Intent> <General Topic>.\n"
