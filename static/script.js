@@ -51,6 +51,7 @@ async function fetchCategoryStats(videoId) {
     localStorage.setItem("videoId", videoId);
     const res = await fetch(`/category-stats?videoId=${videoId}`);
     const stats = await res.json();
+    document.getElementById('comments-playground').style.display = 'none';
     createStatsGraph(stats)
 }
 
@@ -296,7 +297,7 @@ async function displayComments(data) {
                 <span>Toxicity: ${comment.toxicity}</span>
                 <span>Updated: ${comment.updatedAt}</span>
             </div>
-            ${!comment.display ? `
+            ${comment.display===false ? `
                 <div class="warning">
                 <strong>Current applied rules will not display this comment:</strong>
                 <ul>${(comment.displayReasons || []).map(r => `<li>${r}</li>`).join('')}</ul>
@@ -375,7 +376,7 @@ function updateList(divId, items) {
 }
 
 async function createRules() {
-    console.log('SELECTED PHRASES', selectedPhrases)
+    // console.log('SELECTED PHRASES', selectedPhrases)
     document.getElementById("rules-loader").style.display = "block";
     const videoId = localStorage.getItem("videoId");
     const formData = new FormData();
@@ -385,9 +386,9 @@ async function createRules() {
     formData.append("keywords", JSON.stringify(selectedWords));
     formData.append("phrases", JSON.stringify(selectedPhrases));
 
-    for (const [key, value] of formData.entries()) {
-        console.log(key, value);
-    }
+    // for (const [key, value] of formData.entries()) {
+    //     console.log(key, value);
+    // }
 
     const res = await fetch("/create-rules", {
         method: "POST",
